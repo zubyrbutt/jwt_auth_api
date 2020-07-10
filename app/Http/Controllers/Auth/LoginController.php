@@ -64,9 +64,15 @@ class LoginController extends Controller
 
            ]);
        }
-
-
         throw ValidationException::withMessages([$this->username() => 'credentials not match ..']);
+    }
+
+    //for user logout
+
+    public function logout(Request $request)
+    {
+        $this->guard()->logout();
+        return response()->json(['message' => 'user logout successfully!']);
     }
 
 }
