@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+
 use App\Notifications\VerifyEmail;
 use Grimzy\LaravelMysqlSpatial\Eloquent\SpatialTrait;
-
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -51,6 +51,14 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         $this->notify(new VerifyEmail);
     }
+
+
+    //reset password notification with token
+    public function sendPasswordResetNotification($token)
+    {
+      $this->notify(new ResetPassword($token));
+    }
+
 
     public function getJWTIdentifier()
     {
