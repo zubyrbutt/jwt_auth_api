@@ -35,7 +35,8 @@ class VerificationController extends Controller
     public function __construct()
     {
 
-        $this->middleware('signed')->only('verify');
+
+        //$this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
 
@@ -47,7 +48,7 @@ class VerificationController extends Controller
                 "message" => "Link not valid please try again"
             ]], 422);
         }
-        //check if the email id already verified
+        //check if the email is already verified
 
         if($user->hasVerifiedEmail()){
             return response()->json(["error" => [
@@ -62,6 +63,27 @@ class VerificationController extends Controller
 
     public function resend(Request $request)
     {
+        $this->validate($request,[
+            'email' => ['required','email']
+        ]);
 
+        $user = User::where('email', $request->email)->first();
+
+//check user email in database or not
+        if(!$user){
+            return response()->json(["error" =>[
+                "email" => "no user could be found with this email address ."
+            ]]);
+        }
+
+        //check if the email is already verified
+        if($user->hasVerifiedEmail()){
+            return response()->json(["error" => [
+                "message" => "This email already verified.."
+            ]], 422);
+        }
+
+        $user->sendEmailVerificationNotification();
+        return response()->json(['status' => 'verification email link resent']);
     }
 }
